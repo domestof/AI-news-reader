@@ -12,13 +12,13 @@ Every morning, an unattended cloud agent:
 4. Checks a running history in Google Drive to skip stories already surfaced in the last 30 days, unless there's a genuine update.
 5. Scores each remaining item 1–5 🔥 based on source count, specificity/impact, and actionability.
 6. Composes a digest capped at 5 items per category, sorted by score.
-7. Delivers the digest as a **Gmail draft** and a **Telegram message**.
+7. Delivers the digest as a **Telegram message**.
 8. Labels processed emails (`ResumIA-Processat`) so they aren't re-read tomorrow.
 9. Updates the Drive history file for next time.
 
 ## Why
 
-Manually triaging a flooded inbox of AI/tech newsletters doesn't scale. This routine does the reading, filtering, deduplication, and prioritization automatically, and only asks for a final human click to actually send the Gmail draft.
+Manually triaging a flooded inbox of AI/tech newsletters doesn't scale. This routine does the reading, filtering, deduplication, and prioritization automatically, and drops the result straight into a Telegram chat — fully hands-off.
 
 ## How it works
 
@@ -28,15 +28,15 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full architecture d
 
 ## Status
 
-**Working.** Runs daily at 5:00 UTC. See **[docs/STATUS.md](docs/STATUS.md)** for the development history — issues found and fixed along the way (MCP tool permissions, an expired Gmail OAuth token, cloud environment network restrictions, a Telegram bot/token mismatch) — useful background before making further changes.
+**Working.** Runs daily at 5:00 UTC, delivering to Telegram only. See **[docs/STATUS.md](docs/STATUS.md)** for the development history — issues found and fixed along the way (MCP tool permissions, an expired Gmail OAuth token, cloud environment network restrictions, a Telegram bot/token mismatch, dropping the Gmail draft in favor of Telegram-only delivery) — useful background before making further changes.
 
 ## Configuration
 
 This project is 100% configuration, not code:
 
 - A Claude Code Routine (prompt + schedule + connectors), managed at [claude.ai/code/routines](https://claude.ai/code/routines) or via the `/schedule` CLI command.
-- Gmail and Google Drive connectors, authorized under the account running the routine.
-- A dedicated Telegram bot and private group for delivery.
+- Gmail and Google Drive connectors, authorized under the account running the routine (Gmail is read/label only — it's not the delivery channel).
+- A dedicated Telegram bot and private group — the sole delivery channel.
 - A cloud environment with **Custom** network access (to reach `api.telegram.org`, which isn't in the default allowlist).
 
 None of these values are stored in this repository — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#required-configuration) for what's needed and where it lives.
@@ -52,7 +52,6 @@ This runs on the Claude Pro/Max subscription's included usage, not pay-per-token
 
 ## Known limitations
 
-- No native "send email" — only Gmail drafts (the Gmail connector doesn't expose a send tool). A final click from the user is required.
 - No way to update an existing Drive file — each run uploads a new version of the history file.
 - Push notifications only work if the routine's cloud environment allows outbound network access to the relevant host (Telegram works after enabling Custom network access; a plain notification service like ntfy.sh was tried and dropped for UX reasons, not a technical failure).
 

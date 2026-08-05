@@ -5,8 +5,8 @@
 Automatically generate, every day, a digest of the most relevant news on
 Artificial Intelligence, tech law/regulation, cybersecurity, infrastructure,
 and Linux, sourced from newsletter emails arriving in Gmail (LinkedIn, TLDR,
-Substack), with deduplication and importance scoring, delivered as a Gmail
-draft and a Telegram message.
+Substack), with deduplication and importance scoring, delivered as a
+Telegram message.
 
 ## Architecture
 
@@ -23,22 +23,24 @@ day, runs a fixed prompt, and stops.
 │  Model: claude-sonnet-5                                      │
 └───────────────┬───────────────────────────┬──────────────────┘
                 │                           │
-        ┌───────▼────────┐          ┌───────▼────────┐
-        │  Gmail          │          │  Google Drive   │
-        │  connector (MCP)│          │  connector (MCP)│
-        │  - search/read  │          │  - JSON registry│
-        │  - draft/label  │          │    of past news │
-        └────────────────┘          └────────────────┘
+        ┌───────▼────────┐          ┌───────▼────────┐          ┌──────────────┐
+        │  Gmail          │          │  Google Drive   │          │  Telegram     │
+        │  connector (MCP)│          │  connector (MCP)│          │  Bot API      │
+        │  - search/read  │          │  - JSON registry│          │  (curl/Bash)  │
+        │  - label        │          │    of past news │          │  - sendMessage│
+        └────────────────┘          └────────────────┘          └──────────────┘
 ```
 
 Components:
 - **Routine**: the full pipeline prompt, stored in the routine's `job_config`
   — not in files in this repo. Queried/edited with `RemoteTrigger`
   (`action: get|update|run`).
-- **Gmail connector**: data source (searches and reads emails) and output
-  channel (creates the draft, manages the control label).
+- **Gmail connector**: data source only (searches and reads emails, manages
+  the control label). Does not deliver the digest.
 - **Google Drive connector**: persistent memory across runs (registry of
   already-shown news items, to avoid repeats).
+- **Telegram**: the sole delivery channel, reached with a direct `curl` call
+  from Bash (no MCP connector involved).
 
 ## Features (9-step pipeline)
 
@@ -60,24 +62,23 @@ Components:
    Regulation, 🔒 Cybersecurity, 🖥 Infrastructure, 🐧 Linux), capped at
    **5 items per category** (highest-scoring first), with a link to the
    original source.
-7. **Gmail draft creation** (`create_draft`) — addressed to the user's Gmail
-   address, in HTML + plain text. Left pending in the Drafts folder; **the
-   user must send it manually**.
-8. **Telegram message** — `curl` from Bash to the Telegram API
+7. **Telegram message** — `curl` from Bash to the Telegram API
    (`sendMessage`), using a dedicated bot's token and the `chat_id` of a
    private Telegram group. If it fails, it doesn't block the rest of the
-   routine.
-9. **Marking processed emails** — `ResumIA-Processat` label, so future runs
+   routine. This is the **only delivery channel** — no Gmail draft is
+   created.
+8. **Marking processed emails** — `ResumIA-Processat` label, so future runs
    don't re-process the same emails.
-10. **Registry update** — uploads a new version of `resum_ia_estat.json` to
-    Drive with today's included news items, dropping entries older than 30
-    days.
+9. **Registry update** — uploads a new version of `resum_ia_estat.json` to
+   Drive with today's included news items, dropping entries older than 30
+   days.
 
 ## Required configuration
 
 ### Connectors (claude.ai → Connectors)
-- **Gmail**: connected and authorized. Needed for `create_draft`,
-  `create_label`, and `label_message` to work (not just reading).
+- **Gmail**: connected and authorized. Needed for `create_label` and
+  `label_message` to work (not just reading). No "send"/"draft" permissions
+  are needed since Gmail is no longer a delivery channel.
 - **Google Drive**: connected and authorized.
 
 ### Routine permissions (`job_config.ccr`)
@@ -85,8 +86,7 @@ Components:
 - `mcp_connections[].permitted_tools` — **must be declared explicitly per
   connector**, the `allowed_tools` wildcard alone isn't enough:
   - Gmail: `search_threads`, `get_message`, `get_thread`, `list_labels`,
-    `create_label`, `label_message`, `unlabel_message`, `create_draft`,
-    `list_drafts`, `update_draft`
+    `create_label`, `label_message`, `unlabel_message`
   - Google Drive: `search_files`, `download_file_content`, `read_file_content`,
     `get_file_metadata`, `create_file`, `list_recent_files`
 
@@ -148,16 +148,12 @@ per token.
 
 ## Known limitations
 
-- **No real email sending**: the Gmail connector only exposes
-  `create_draft`/`update_draft`, no "send" tool. The user has to click "Send"
-  manually every day. (A possible alternative, considered and dropped: SMTP
-  with a Gmail app password from Bash.)
 - **No "update" on Drive**: the connector only has `create_file`, no way to
   edit an existing file. Every day a new version of `resum_ia_estat.json` is
   uploaded; the routine looks up the most recent one by `modifiedTime`. Old
   files stay on Drive (not auto-deleted).
-- **Gmail's OAuth token can expire**: if writes (draft/label) start failing
-  again while reads keep working, the most likely cause is an expired token
+- **Gmail's OAuth token can expire**: if labeling starts failing again while
+  reads keep working, the most likely cause is an expired token
   — disconnect and reconnect the Gmail connector at
   claude.ai/customize/connectors (known bug: Claude doesn't refresh it on its
   own).
@@ -172,9 +168,9 @@ per token.
   etc.): `RemoteTrigger({action: "update", trigger_id: "...", body: {...}})`
   — the entire `job_config` must be resent with the change applied (it's a
   partial update at the field level, not of text inside the prompt).
-- **Verify it's working**: `list_drafts` (subject "📰 Resum diari de
-  tecnologia"), `list_labels` (`ResumIA-Processat` label with messages > 0),
-  and the `resum_ia_estat.json` file on Drive with today's `modifiedTime`.
+- **Verify it's working**: check the Telegram group for today's message,
+  `list_labels` (`ResumIA-Processat` label with messages > 0), and the
+  `resum_ia_estat.json` file on Drive with today's `modifiedTime`.
 
 ## Development history
 
