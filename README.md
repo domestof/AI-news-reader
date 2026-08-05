@@ -24,11 +24,11 @@ Manually triaging a flooded inbox of AI/tech newsletters doesn't scale. This rou
 
 There's no code here — the entire pipeline is a prompt stored in a Claude Code Routine's configuration, running on Anthropic's cloud infrastructure on a daily schedule. It reaches Gmail and Google Drive through MCP connectors, and Telegram through a direct HTTPS call.
 
-See **[docs/ARQUITECTURA.md](docs/ARQUITECTURA.md)** for the full architecture diagram, pipeline details, and required configuration (connectors, tool permissions, network access, scheduling).
+See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full architecture diagram, pipeline details, and required configuration (connectors, tool permissions, network access, scheduling).
 
 ## Status
 
-**Working.** Runs daily at 5:00 UTC. See **[docs/ESTAT.md](docs/ESTAT.md)** for the development history — issues found and fixed along the way (MCP tool permissions, an expired Gmail OAuth token, cloud environment network restrictions, a Telegram bot/token mismatch) — useful background before making further changes.
+**Working.** Runs daily at 5:00 UTC. See **[docs/STATUS.md](docs/STATUS.md)** for the development history — issues found and fixed along the way (MCP tool permissions, an expired Gmail OAuth token, cloud environment network restrictions, a Telegram bot/token mismatch) — useful background before making further changes.
 
 ## Configuration
 
@@ -39,16 +39,16 @@ This project is 100% configuration, not code:
 - A dedicated Telegram bot and private group for delivery.
 - A cloud environment with **Custom** network access (to reach `api.telegram.org`, which isn't in the default allowlist).
 
-None of these values are stored in this repository — see [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md#configuraci%C3%B3-necess%C3%A0ria) for what's needed and where it lives.
+None of these values are stored in this repository — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#required-configuration) for what's needed and where it lives.
 
 ## Billing
 
-This runs on the Claude Pro/Max subscription's included usage, not pay-per-token API credits — see the [Billing section](docs/ARQUITECTURA.md#facturació) in the architecture doc for the official source.
+This runs on the Claude Pro/Max subscription's included usage, not pay-per-token API credits — see the [Billing section](docs/ARCHITECTURE.md#billing) in the architecture doc for the official source.
 
 ## Maintenance
 
 - View or edit the routine: [claude.ai/code/routines](https://claude.ai/code/routines)
-- Run it on demand, change the schedule, sources, or scoring rules: see [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md#manteniment)
+- Run it on demand, change the schedule, sources, or scoring rules: see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#maintenance)
 
 ## Known limitations
 
@@ -56,4 +56,4 @@ This runs on the Claude Pro/Max subscription's included usage, not pay-per-token
 - No way to update an existing Drive file — each run uploads a new version of the history file.
 - Push notifications only work if the routine's cloud environment allows outbound network access to the relevant host (Telegram works after enabling Custom network access; a plain notification service like ntfy.sh was tried and dropped for UX reasons, not a technical failure).
 
-Full details in [docs/ARQUITECTURA.md](docs/ARQUITECTURA.md#limitacions-conegudes).
+Full details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#known-limitations).

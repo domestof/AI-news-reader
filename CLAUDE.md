@@ -1,25 +1,26 @@
 # AI-news-reader
 
-Aquest repositori **no conté codi d'aplicació**. El projecte és una rutina
-programada al núvol (Claude Code Routine) que genera cada dia un resum de
-notícies d'IA/tecnologia a partir dels correus de Gmail de l'usuari (LinkedIn,
-TLDR, Substack), i el deixa com a esborrany a Gmail.
+This repository **contains no application code**. The project is a cloud
+scheduled routine (Claude Code Routine) that generates a daily digest of
+AI/tech news from the user's Gmail newsletters (LinkedIn, TLDR, Substack),
+and leaves it as a Gmail draft plus a Telegram message.
 
-- **Arquitectura completa, pipeline i configuració necessària**:
-  [`docs/ARQUITECTURA.md`](docs/ARQUITECTURA.md)
-- **Historial de decisions i incidències resoltes** (permisos MCP, token OAuth
-  caducat, bloqueig de xarxa de Telegram, etc.): [`docs/ESTAT.md`](docs/ESTAT.md)
+- **Full architecture, pipeline, and required configuration**:
+  [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- **History of decisions and resolved issues** (MCP permissions, expired
+  OAuth token, Telegram network block, etc.): [`docs/STATUS.md`](docs/STATUS.md)
 
-## Referència ràpida
+## Quick reference
 
-- Rutina: "Resum diari IA/Tech (LinkedIn + newsletters)" —
-  veure-la a https://claude.ai/code/routines
-- Horari: `0 5 * * *` UTC (7:00 Madrid en horari d'estiu)
-- Gestió: eina `RemoteTrigger` (`action: get|update|run`) o skill `schedule`
-- Estat: **funcionant** (confirmat 2026-08-05) — l'usuari ha de prémer "Enviar"
-  manualment cada dia sobre l'esborrany que genera la rutina
+- Routine: "Resum diari IA/Tech (LinkedIn + newsletters)" —
+  see it at https://claude.ai/code/routines
+- Schedule: `0 5 * * *` UTC (7:00 Madrid during daylight saving)
+- Management: `RemoteTrigger` tool (`action: get|update|run`) or the
+  `schedule` skill
+- Status: **working** (confirmed 2026-08-05) — the user has to manually click
+  "Send" every day on the draft the routine generates
 
-Abans de tocar la rutina (afegir fonts, canviar horari, límits, etc.), llegeix
-`docs/ARQUITECTURA.md` per entendre les limitacions dels connectors (Gmail només
-crea esborranys, Drive només crea fitxers nous, Telegram bloquejat per xarxa en
-aquest entorn) abans de proposar canvis que en depenguin.
+Before touching the routine (adding sources, changing the schedule, item
+caps, etc.), read `docs/ARCHITECTURE.md` to understand the connectors'
+limitations (Gmail only creates drafts, Drive only creates new files) before
+proposing changes that depend on them.
