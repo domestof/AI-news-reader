@@ -171,9 +171,3 @@ per token.
 - **Verify it's working**: check the Telegram group for today's message,
   `list_labels` (`ResumIA-Processat` label with messages > 0), and the
   `resum_ia_estat.json` file on Drive with today's `modifiedTime`.
-
-## Development history
-
-See `docs/STATUS.md` for the detailed log of decisions, issues found
-(MCP permissions, expired OAuth token, Telegram network block) and how they
-were resolved.

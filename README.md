@@ -28,7 +28,7 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full architecture d
 
 ## Status
 
-**Working.** Runs daily at 5:00 UTC, delivering to Telegram only. See **[docs/STATUS.md](docs/STATUS.md)** for the development history — issues found and fixed along the way (MCP tool permissions, an expired Gmail OAuth token, cloud environment network restrictions, a Telegram bot/token mismatch, dropping the Gmail draft in favor of Telegram-only delivery) — useful background before making further changes.
+**Working.** Runs daily at 5:00 UTC, delivering to Telegram only.
 
 ## Configuration
 
