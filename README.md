@@ -2,6 +2,8 @@
 
 A daily tech news digest, automated end-to-end with a [Claude Code Routine](https://code.claude.com/docs/en/routines) — no application code, no server to maintain.
 
+![Pipeline overview: scan and extract Gmail newsletters, smart filtering and scoring, deduplicate and check history, instant Telegram delivery, 100% configuration with zero code](docs/images/pipeline-overview.png)
+
 ## What it does
 
 Every morning, an unattended cloud agent:
